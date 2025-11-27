@@ -1,0 +1,160 @@
+import React, { useState } from 'react';
+import { CheckCircle, Navigation, Wrench, Truck, Battery, Plus, Edit2, Trash2, Save } from 'lucide-react';
+
+const FleetGridView = ({ vehicles, onCreate, onUpdate, onDelete }) => {
+  const [showForm, setShowForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const initialFormState = {
+    id: '',
+    plateNumber: '',
+    driverName: '',
+    type: 'Truck',
+    status: 'Available',
+    fuelLevel: 100,
+    currentLocation: 'Depot'
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
+
+  const resetForm = () => {
+    setFormData(initialFormState);
+    setIsEditing(false);
+    setShowForm(false);
+  };
+
+  const handleEditClick = (vehicle) => {
+    setFormData(vehicle);
+    setIsEditing(true);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isEditing) {
+      onUpdate(formData.id, formData);
+    } else {
+      onCreate(formData);
+    }
+    resetForm();
+  };
+
+  const getStatusBadge = (status) => {
+    // Backend menggunakan Bahasa Inggris, UI menggunakan Bahasa Indonesia
+    switch (status) {
+      case 'Available': return <span className="flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full"><CheckCircle className="w-3 h-3" /> Tersedia</span>;
+      case 'On Route': return <span className="flex items-center gap-1 text-xs font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded-full"><Navigation className="w-3 h-3" /> Jalan</span>;
+      case 'Maintenance': return <span className="flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-100 px-2 py-1 rounded-full"><Wrench className="w-3 h-3" /> Perbaikan</span>;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold text-slate-900">Manajemen Armada</h2>
+        <button
+          onClick={() => { resetForm(); setShowForm(!showForm); }}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium text-sm"
+        >
+          <Plus size={16} />
+          {showForm && !isEditing ? 'Batal' : 'Tambah Armada'}
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 animate-fade-in">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold text-slate-800">{isEditing ? `Edit Armada ${formData.id}` : 'Armada Baru'}</h3>
+            <button onClick={resetForm} className="text-slate-400 hover:text-slate-600 text-sm">Batal</button>
+          </div>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {isEditing && (
+              <div className="md:col-span-3 bg-slate-50 p-2 rounded border border-slate-200">
+                <span className="text-xs text-slate-500">ID Armada: </span>
+                <span className="text-sm font-medium text-slate-700">{formData.id}</span>
+              </div>
+            )}
+            <input required placeholder="Plat Nomor" className="border p-2 rounded" value={formData.plateNumber} onChange={e => setFormData({ ...formData, plateNumber: e.target.value })} />
+            <input required placeholder="Nama Pengemudi" className="border p-2 rounded" value={formData.driverName} onChange={e => setFormData({ ...formData, driverName: e.target.value })} />
+            <select className="border p-2 rounded" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
+              <option value="Truck">Truk</option>
+              <option value="Van">Mobil Box</option>
+              <option value="Drone">Drone</option>
+            </select>
+            <select className="border p-2 rounded" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
+              <option value="Available">Tersedia</option>
+              <option value="On Route">Dalam Perjalanan</option>
+              <option value="Maintenance">Perbaikan</option>
+            </select>
+            <input required placeholder="Lokasi Saat Ini" className="border p-2 rounded" value={formData.currentLocation} onChange={e => setFormData({ ...formData, currentLocation: e.target.value })} />
+
+            <div className="md:col-span-3 flex gap-3">
+              <div className="flex-1">
+                <label className="text-xs text-slate-500 block mb-1">Bahan Bakar: {formData.fuelLevel}%</label>
+                <input type="range" min="0" max="100" className="w-full accent-blue-600" value={formData.fuelLevel} onChange={e => setFormData({ ...formData, fuelLevel: parseInt(e.target.value) })} />
+              </div>
+            </div>
+
+            <button type="submit" className="bg-emerald-600 text-white p-2 rounded hover:bg-emerald-700 md:col-span-3 flex justify-center items-center gap-2">
+              <Save size={16} />
+              {isEditing ? 'Perbarui Armada' : 'Simpan Armada'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {vehicles.map((vehicle) => (
+          <div key={vehicle.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow relative group">
+
+            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 backdrop-blur-sm p-1 rounded-lg shadow-sm">
+              <button onClick={() => handleEditClick(vehicle)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md"><Edit2 size={14} /></button>
+              <button onClick={() => onDelete(vehicle.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-md"><Trash2 size={14} /></button>
+            </div>
+
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-lg ${vehicle.status === 'Maintenance' ? 'bg-amber-50' : 'bg-slate-100'}`}>
+                  <Truck className={`w-6 h-6 ${vehicle.status === 'Maintenance' ? 'text-amber-600' : 'text-slate-600'}`} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900">{vehicle.plateNumber}</h3>
+                  <p className="text-sm text-slate-500">{vehicle.type} • {vehicle.id}</p>
+                </div>
+              </div>
+              {getStatusBadge(vehicle.status)}
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500">Pengemudi</span>
+                <span className="font-medium text-slate-900">{vehicle.driverName}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500">Lokasi</span>
+                <span className="font-medium text-slate-900">{vehicle.currentLocation}</span>
+              </div>
+              <div className="pt-4 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-slate-500 flex items-center gap-1"><Battery className="w-3 h-3" /> BBM</span>
+                  <span className="text-xs font-medium text-slate-700">{vehicle.fuelLevel}%</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2">
+                  <div className={`h-2 rounded-full ${vehicle.fuelLevel < 20 ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${vehicle.fuelLevel}%` }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        {vehicles.length === 0 && (
+          <div className="col-span-full p-12 text-center text-slate-500 border-2 border-dashed border-slate-200 rounded-xl">
+            Tidak ada armada ditemukan. Tambahkan armada baru untuk memulai.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default FleetGridView;
