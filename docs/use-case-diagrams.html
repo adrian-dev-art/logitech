@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Use Case Diagrams - Sistem Logistik</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+      padding: 0;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 10mm auto;
+      background: white;
+      padding: 15mm;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      page-break-after: always;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+    }
+
+    h1 {
+      color: #2c3e50;
+      border-bottom: 4px solid #3498db;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      font-size: 2em;
+      text-align: center;
+    }
+
+    h2 {
+      color: #34495e;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+      border-left: 5px solid #3498db;
+      padding-left: 15px;
+    }
+
+    p {
+      margin-bottom: 15px;
+      color: #555;
+      font-size: 0.95em;
+    }
+
+    .diagram-container {
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+      border-left: 4px solid #2196F3;
+      border-radius: 4px;
+    }
+
+    .info-box h3 {
+      color: #1976D2;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    .info-box ol {
+      margin-left: 20px;
+      color: #555;
+    }
+
+    .info-box li {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <button class="print-button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+
+  <!-- Page 1: Title & Admin -->
+  <div class="page">
+    <h1>Use Case Diagrams - Sistem Logistik</h1>
+
+    <h2>3.1 Use Case Diagram - Admin Role</h2>
+    <p>Diagram ini menunjukkan semua use case yang dapat diakses oleh Admin dengan layout vertikal.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+flowchart TB
+    Admin([ADMIN])
+
+    Admin --> AUTH
+
+    subgraph AUTH[Authentication Module]
+        direction TB
+        Login[Login]
+        Logout[Logout]
+    end
+
+    AUTH --> USER
+
+    subgraph USER[User Management Module]
+        direction TB
+        CreateUser[Create User]
+        UpdateUser[Update User]
+        DeleteUser[Delete User]
+        ViewUsers[View Users]
+    end
+
+    USER --> CUSTOMER
+
+    subgraph CUSTOMER[Customer Management Module]
+        direction TB
+        CreateCustomer[Create Customer]
+        UpdateCustomer[Update Customer]
+        DeleteCustomer[Delete Customer]
+        ViewCustomers[View Customers]
+    end
+
+    CUSTOMER --> FLEET
+
+    subgraph FLEET[Fleet Management Module]
+        direction TB
+        CreateFleet[Create Fleet]
+        UpdateFleet[Update Fleet]
+        DeleteFleet[Delete Fleet]
+        ViewFleets[View Fleets]
+    end
+
+    FLEET --> LOCATION
+
+    subgraph LOCATION[Location Management Module]
+        direction TB
+        CreateLocation[Create Location]
+        UpdateLocation[Update Location]
+        DeleteLocation[Delete Location]
+        ViewLocations[View Locations]
+    end
+
+    LOCATION --> REPORT
+
+    subgraph REPORT[Reports & Analytics Module]
+        direction TB
+        ViewDashboard[View Dashboard]
+        GenerateReports[Generate Reports]
+        ViewActivityLogs[View Activity Logs]
+        ExportData[Export Data]
+    end
+
+    style Admin fill:#FF6B6B,stroke:#C92A2A,stroke-width:4px,color:#fff
+    style AUTH fill:#FFE66D,stroke:#F59F00,stroke-width:3px
+    style USER fill:#4ECDC4,stroke:#0B7285,stroke-width:3px
+    style CUSTOMER fill:#95E1D3,stroke:#087F5B,stroke-width:3px
+    style FLEET fill:#F38181,stroke:#C92A2A,stroke-width:3px
+    style LOCATION fill:#AA96DA,stroke:#5F3DC4,stroke-width:3px
+    style REPORT fill:#FCBAD3,stroke:#C2255C,stroke-width:3px
+            </pre>
+    </div>
+  </div>
+
+  <!-- Page 2: Manager -->
+  <div class="page">
+    <h2>3.2 Use Case Diagram - Manager Role</h2>
+    <p>Diagram ini menunjukkan semua use case yang dapat diakses oleh Manager dengan layout vertikal.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+flowchart TB
+    Manager([MANAGER])
+
+    Manager --> AUTH
+
+    subgraph AUTH[Authentication Module]
+        direction TB
+        Login[Login]
+        Logout[Logout]
+    end
+
+    AUTH --> CUSTOMER
+
+    subgraph CUSTOMER[Customer Management Module]
+        direction TB
+        CreateCustomer[Create Customer]
+        UpdateCustomer[Update Customer]
+        ViewCustomers[View Customers]
+    end
+
+    CUSTOMER --> FLEET
+
+    subgraph FLEET[Fleet Management Module]
+        direction TB
+        CreateFleet[Create Fleet]
+        UpdateFleet[Update Fleet]
+        ViewFleets[View Fleets]
+        FleetMaintenance[Manage Fleet Maintenance]
+    end
+
+    FLEET --> LOCATION
+
+    subgraph LOCATION[Location Management Module]
+        direction TB
+        CreateLocation[Create Location]
+        UpdateLocation[Update Location]
+        ViewLocations[View Locations]
+    end
+
+    LOCATION --> SHIPMENT
+
+    subgraph SHIPMENT[Shipment Management Module]
+        direction TB
+        CreateShipment[Create Shipment]
+        UpdateShipment[Update Shipment Status]
+        AssignFleet[Assign Fleet to Shipment]
+        ViewShipments[View Shipments]
+    end
+
+    SHIPMENT --> REPORT
+
+    subgraph REPORT[Reports & Analytics Module]
+        direction TB
+        ViewDashboard[View Dashboard]
+        GenerateReports[Generate Reports]
+        ViewActivityLogs[View Activity Logs]
+    end
+
+    CreateShipment -.includes.-> ViewCustomers
+    AssignFleet -.includes.-> ViewFleets
+
+    style Manager fill:#845EC2,stroke:#5F3DC4,stroke-width:4px,color:#fff
+    style AUTH fill:#FFE66D,stroke:#F59F00,stroke-width:3px
+    style CUSTOMER fill:#95E1D3,stroke:#087F5B,stroke-width:3px
+    style FLEET fill:#F38181,stroke:#C92A2A,stroke-width:3px
+    style LOCATION fill:#AA96DA,stroke:#5F3DC4,stroke-width:3px
+    style SHIPMENT fill:#00D2FC,stroke:#0B7285,stroke-width:3px
+    style REPORT fill:#FCBAD3,stroke:#C2255C,stroke-width:3px
+            </pre>
+    </div>
+  </div>
+
+  <!-- Page 3: Staff -->
+  <div class="page">
+    <h2>3.3 Use Case Diagram - Staff Role</h2>
+    <p>Diagram ini menunjukkan use case yang dapat diakses oleh Staff.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+flowchart TB
+    Staff([STAFF])
+
+    subgraph AUTH[Authentication Module]
+        Login[Login]
+        Logout[Logout]
+    end
+
+    subgraph CUSTOMER[Customer Management Module]
+        ViewCustomers[View Customers]
+    end
+
+    subgraph SHIPMENT[Shipment Management Module]
+        CreateShipment[Create Shipment]
+        UpdateShipment[Update Shipment Status]
+        TrackShipment[Track Shipment]
+        ViewShipments[View Shipments]
+    end
+
+    subgraph REPORT[Dashboard Module]
+        ViewDashboard[View Dashboard]
+    end
+
+    Staff --> Login
+    Staff --> Logout
+    Staff --> ViewCustomers
+    Staff --> CreateShipment
+    Staff --> UpdateShipment
+    Staff --> TrackShipment
+    Staff --> ViewShipments
+    Staff --> ViewDashboard
+
+    CreateShipment -.includes.-> ViewCustomers
+
+    style Staff fill:#00C9A7,stroke:#087F5B,stroke-width:4px,color:#fff
+    style AUTH fill:#FFE66D,stroke:#F59F00,stroke-width:2px
+    style CUSTOMER fill:#95E1D3,stroke:#087F5B,stroke-width:2px
+    style SHIPMENT fill:#00D2FC,stroke:#0B7285,stroke-width:2px
+    style REPORT fill:#FCBAD3,stroke:#C2255C,stroke-width:2px
+            </pre>
+    </div>
+  </div>
+
+  <!-- Page 4: Driver -->
+  <div class="page">
+    <h2>3.4 Use Case Diagram - Driver Role</h2>
+    <p>Diagram ini menunjukkan use case yang dapat diakses oleh Driver.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+flowchart TB
+    Driver([DRIVER])
+
+    subgraph AUTH[Authentication Module]
+        Login[Login]
+        Logout[Logout]
+    end
+
+    subgraph SHIPMENT[Shipment Operations Module]
+        UpdateShipment[Update Shipment Status]
+        TrackShipment[Track Shipment]
+        ViewShipments[View Assigned Shipments]
+    end
+
+    subgraph REPORT[Dashboard Module]
+        ViewDashboard[View Dashboard]
+    end
+
+    Driver --> Login
+    Driver --> Logout
+    Driver --> UpdateShipment
+    Driver --> TrackShipment
+    Driver --> ViewShipments
+    Driver --> ViewDashboard
+
+    style Driver fill:#FF6F59,stroke:#C92A2A,stroke-width:4px,color:#fff
+    style AUTH fill:#FFE66D,stroke:#F59F00,stroke-width:2px
+    style SHIPMENT fill:#00D2FC,stroke:#0B7285,stroke-width:2px
+    style REPORT fill:#FCBAD3,stroke:#C2255C,stroke-width:2px
+            </pre>
+    </div>
+  </div>
+
+  <!-- Page 5: System Overview -->
+  <div class="page">
+    <h2>3.5 Use Case Diagram - System Overview (All Roles)</h2>
+    <p>Diagram ini menunjukkan overview semua role dan akses mereka terhadap sistem.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+flowchart LR
+    Admin([ADMIN])
+    Manager([MANAGER])
+    Staff([STAFF])
+    Driver([DRIVER])
+
+    subgraph SYSTEM[Logistic Management System]
+        direction TB
+
+        Auth[Authentication]
+        UserMgmt[User Management]
+        CustomerMgmt[Customer Management]
+        FleetMgmt[Fleet Management]
+        LocationMgmt[Location Management]
+        ShipmentMgmt[Shipment Management]
+        Reports[Reports & Analytics]
+    end
+
+    Admin -.Full Access.-> UserMgmt
+    Admin -.Full Access.-> CustomerMgmt
+    Admin -.Full Access.-> FleetMgmt
+    Admin -.Full Access.-> LocationMgmt
+    Admin -.Full Access.-> Reports
+
+    Manager -.Manage.-> CustomerMgmt
+    Manager -.Manage.-> FleetMgmt
+    Manager -.Manage.-> LocationMgmt
+    Manager -.Manage.-> ShipmentMgmt
+    Manager -.View.-> Reports
+
+    Staff -.Create/Update.-> ShipmentMgmt
+    Staff -.View.-> CustomerMgmt
+
+    Driver -.Update Status.-> ShipmentMgmt
+
+    Admin --> Auth
+    Manager --> Auth
+    Staff --> Auth
+    Driver --> Auth
+
+    style Admin fill:#FF6B6B,stroke:#C92A2A,stroke-width:4px,color:#fff
+    style Manager fill:#845EC2,stroke:#5F3DC4,stroke-width:4px,color:#fff
+    style Staff fill:#00C9A7,stroke:#087F5B,stroke-width:4px,color:#fff
+    style Driver fill:#FF6F59,stroke:#C92A2A,stroke-width:4px,color:#fff
+    style SYSTEM fill:#F8F9FA,stroke:#495057,stroke-width:3px
+            </pre>
+    </div>
+
+    <div class="info-box">
+      <h3>💡 Cara Export ke PDF:</h3>
+      <ol>
+        <li>Klik tombol <strong>"🖨️ Print / Save as PDF"</strong> di pojok kanan atas</li>
+        <li>Atau tekan <strong>Ctrl + P</strong></li>
+        <li>Di dialog print, pilih <strong>"Save as PDF"</strong> sebagai destination</li>
+        <li>Atur <strong>Layout: Portrait</strong></li>
+        <li>Centang <strong>"Background graphics"</strong></li>
+        <li>Klik <strong>"Save"</strong></li>
+      </ol>
+    </div>
+  </div>
+</body>
+
+</html>

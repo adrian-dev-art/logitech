@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UML Diagrams - Sistem Logistik</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #2c3e50;
+      border-bottom: 4px solid #3498db;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+
+    h2 {
+      color: #34495e;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      border-left: 5px solid #3498db;
+      padding-left: 15px;
+    }
+
+    h3 {
+      color: #555;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+
+    .diagram-container {
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 30px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+
+    .mermaid {
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .note strong {
+      color: #856404;
+    }
+
+    .legend {
+      background: #e7f3ff;
+      border-left: 4px solid #2196F3;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .legend ul {
+      margin-left: 20px;
+      margin-top: 10px;
+    }
+
+    .legend li {
+      margin: 5px 0;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .container {
+        box-shadow: none;
+        padding: 20px;
+      }
+
+      .diagram-container {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      h2 {
+        page-break-before: always;
+      }
+
+      h2:first-of-type {
+        page-break-before: avoid;
+      }
+    }
+
+    .print-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    .print-button:hover {
+      background: #2980b9;
+    }
+
+    @media print {
+      .print-button {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <button class="print-button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+
+  <div class="container">
+    <h1>📊 UML Diagrams - Sistem Logistik</h1>
+
+    <div class="note">
+      <strong>Cara Export ke PDF:</strong> Klik tombol "Print / Save as PDF" di pojok kanan atas, atau tekan Ctrl+P,
+      lalu pilih "Save as PDF" sebagai printer destination.
+    </div>
+
+    <h2>1. Class Diagram</h2>
+    <p>Diagram ini menunjukkan struktur model/entitas dalam sistem beserta atribut dan method-nya.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+classDiagram
+    class User {
+        +String username
+        +String email
+        +String password
+        +String fullName
+        +String role
+        +String phone
+        +Boolean isActive
+        +Date createdAt
+        +Date updatedAt
+        +comparePassword(candidatePassword) Boolean
+    }
+
+    class Customer {
+        +String id
+        +String name
+        +String email
+        +String phone
+        +String address
+        +String company
+        +Number totalShipments
+        +Boolean isActive
+        +Date createdAt
+        +Date updatedAt
+    }
+
+    class Fleet {
+        +String id
+        +String plateNumber
+        +String type
+        +Number capacity
+        +String driver
+        +String status
+        +Date lastMaintenance
+        +Date nextMaintenance
+        +String fuelType
+        +Number year
+        +Date createdAt
+        +Date updatedAt
+    }
+
+    class Shipment {
+        +String id
+        +Object customer
+        +String origin
+        +String destination
+        +Number weight
+        +String status
+        +Object fleet
+        +Date estimatedDelivery
+        +Date actualDelivery
+        +String notes
+        +Date createdAt
+        +Date updatedAt
+    }
+
+    class Location {
+        +String id
+        +String name
+        +String cityName
+        +String type
+        +String address
+        +Object coordinates
+        +Number latitude
+        +Number longitude
+        +Number capacity
+        +Number currentOccupancy
+        +String manager
+        +Boolean isActive
+        +Date createdAt
+        +Date updatedAt
+    }
+
+    class ActivityLog {
+        +ObjectId user
+        +String action
+        +String details
+        +String ipAddress
+        +Date timestamp
+        +Date createdAt
+        +Date updatedAt
+    }
+
+    User "1" --> "*" ActivityLog : creates
+    Fleet "0..1" --> "*" Shipment : assigned to
+    Customer "1" --> "*" Shipment : places
+    Location "1" --> "*" Shipment : origin/destination
+            </pre>
+    </div>
+
+    <h2>2. Entity Relationship Diagram (ERD)</h2>
+    <p>Diagram ini menunjukkan relasi antar entitas dalam database.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+erDiagram
+    USER ||--o{ ACTIVITY_LOG : creates
+    USER {
+        ObjectId _id PK
+        String username UK
+        String email UK
+        String password
+        String fullName
+        String role
+        String phone
+        Boolean isActive
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    CUSTOMER ||--o{ SHIPMENT : places
+    CUSTOMER {
+        ObjectId _id PK
+        String id UK
+        String name
+        String email
+        String phone
+        String address
+        String company
+        Number totalShipments
+        Boolean isActive
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    FLEET ||--o{ SHIPMENT : "assigned to"
+    FLEET {
+        ObjectId _id PK
+        String id UK
+        String plateNumber UK
+        String type
+        Number capacity
+        String driver
+        String status
+        Date lastMaintenance
+        Date nextMaintenance
+        String fuelType
+        Number year
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    SHIPMENT }o--|| LOCATION : "origin"
+    SHIPMENT }o--|| LOCATION : "destination"
+    SHIPMENT {
+        ObjectId _id PK
+        String id UK
+        Object customer
+        String origin FK
+        String destination FK
+        Number weight
+        String status
+        Object fleet
+        Date estimatedDelivery
+        Date actualDelivery
+        String notes
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    LOCATION {
+        ObjectId _id PK
+        String id UK
+        String name
+        String cityName
+        String type
+        String address
+        Object coordinates
+        Number latitude
+        Number longitude
+        Number capacity
+        Number currentOccupancy
+        String manager
+        Boolean isActive
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    ACTIVITY_LOG {
+        ObjectId _id PK
+        ObjectId user FK
+        String action
+        String details
+        String ipAddress
+        DateTime timestamp
+        DateTime createdAt
+        DateTime updatedAt
+    }
+            </pre>
+    </div>
+
+    <h2>3. Use Case Diagram</h2>
+    <p>Diagram ini menunjukkan interaksi berbagai role user dengan sistem, dikelompokkan berdasarkan modul fungsional.
+    </p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+graph TB
+    %% Actors
+    Admin((👤 Admin))
+    Manager((👤 Manager))
+    Staff((👤 Staff))
+    Driver((👤 Driver))
+
+    %% System Boundary
+    subgraph System["🏢 Logistic Management System"]
+
+        subgraph AuthModule["🔐 Authentication Module"]
+            UC_Login[Login]
+            UC_Logout[Logout]
+            UC_ChangePassword[Change Password]
+        end
+
+        subgraph UserModule["👥 User Management Module"]
+            UC_CreateUser[Create User]
+            UC_UpdateUser[Update User]
+            UC_DeleteUser[Delete User]
+            UC_ViewUsers[View Users]
+        end
+
+        subgraph CustomerModule["🏪 Customer Management Module"]
+            UC_CreateCustomer[Create Customer]
+            UC_UpdateCustomer[Update Customer]
+            UC_DeleteCustomer[Delete Customer]
+            UC_ViewCustomers[View Customers]
+        end
+
+        subgraph FleetModule["🚚 Fleet Management Module"]
+            UC_CreateFleet[Create Fleet]
+            UC_UpdateFleet[Update Fleet]
+            UC_DeleteFleet[Delete Fleet]
+            UC_ViewFleets[View Fleets]
+            UC_FleetMaintenance[Manage Fleet Maintenance]
+        end
+
+        subgraph LocationModule["📍 Location Management Module"]
+            UC_CreateLocation[Create Location]
+            UC_UpdateLocation[Update Location]
+            UC_DeleteLocation[Delete Location]
+            UC_ViewLocations[View Locations]
+        end
+
+        subgraph ShipmentModule["📦 Shipment Management Module"]
+            UC_CreateShipment[Create Shipment]
+            UC_UpdateShipment[Update Shipment Status]
+            UC_AssignFleet[Assign Fleet to Shipment]
+            UC_TrackShipment[Track Shipment]
+            UC_ViewShipments[View Shipments]
+        end
+
+        subgraph ReportModule["📊 Reporting & Analytics Module"]
+            UC_ViewDashboard[View Dashboard]
+            UC_GenerateReports[Generate Reports]
+            UC_ViewActivityLogs[View Activity Logs]
+            UC_ExportData[Export Data]
+        end
+    end
+
+    %% Admin Connections
+    Admin -.-> UC_Login
+    Admin -.-> UC_Logout
+    Admin --> UC_CreateUser
+    Admin --> UC_UpdateUser
+    Admin --> UC_DeleteUser
+    Admin --> UC_ViewUsers
+    Admin --> UC_CreateCustomer
+    Admin --> UC_UpdateCustomer
+    Admin --> UC_DeleteCustomer
+    Admin --> UC_ViewCustomers
+    Admin --> UC_CreateFleet
+    Admin --> UC_UpdateFleet
+    Admin --> UC_DeleteFleet
+    Admin --> UC_ViewFleets
+    Admin --> UC_CreateLocation
+    Admin --> UC_UpdateLocation
+    Admin --> UC_DeleteLocation
+    Admin --> UC_ViewLocations
+    Admin --> UC_ViewDashboard
+    Admin --> UC_GenerateReports
+    Admin --> UC_ViewActivityLogs
+    Admin --> UC_ExportData
+
+    %% Manager Connections
+    Manager -.-> UC_Login
+    Manager -.-> UC_Logout
+    Manager --> UC_ViewUsers
+    Manager --> UC_CreateCustomer
+    Manager --> UC_UpdateCustomer
+    Manager --> UC_ViewCustomers
+    Manager --> UC_CreateFleet
+    Manager --> UC_UpdateFleet
+    Manager --> UC_ViewFleets
+    Manager --> UC_FleetMaintenance
+    Manager --> UC_CreateLocation
+    Manager --> UC_UpdateLocation
+    Manager --> UC_ViewLocations
+    Manager --> UC_CreateShipment
+    Manager --> UC_UpdateShipment
+    Manager --> UC_AssignFleet
+    Manager --> UC_ViewShipments
+    Manager --> UC_ViewDashboard
+    Manager --> UC_GenerateReports
+    Manager --> UC_ViewActivityLogs
+
+    %% Staff Connections
+    Staff -.-> UC_Login
+    Staff -.-> UC_Logout
+    Staff --> UC_ViewCustomers
+    Staff --> UC_CreateShipment
+    Staff --> UC_UpdateShipment
+    Staff --> UC_TrackShipment
+    Staff --> UC_ViewShipments
+    Staff --> UC_ViewDashboard
+
+    %% Driver Connections
+    Driver -.-> UC_Login
+    Driver -.-> UC_Logout
+    Driver --> UC_UpdateShipment
+    Driver --> UC_TrackShipment
+    Driver --> UC_ViewShipments
+    Driver --> UC_ViewDashboard
+
+    %% Include Relationships
+    UC_CreateShipment -.includes.-> UC_ViewCustomers
+    UC_AssignFleet -.includes.-> UC_ViewFleets
+    UC_UpdateShipment -.includes.-> UC_ViewActivityLogs
+
+    %% Styling
+    classDef actorStyle fill:#4A90E2,stroke:#2E5C8A,stroke-width:3px,color:#fff
+    classDef authStyle fill:#F39C12,stroke:#D68910,stroke-width:2px
+    classDef userStyle fill:#9B59B6,stroke:#7D3C98,stroke-width:2px
+    classDef customerStyle fill:#1ABC9C,stroke:#16A085,stroke-width:2px
+    classDef fleetStyle fill:#E74C3C,stroke:#C0392B,stroke-width:2px
+    classDef locationStyle fill:#3498DB,stroke:#2980B9,stroke-width:2px
+    classDef shipmentStyle fill:#2ECC71,stroke:#27AE60,stroke-width:2px
+    classDef reportStyle fill:#95A5A6,stroke:#7F8C8D,stroke-width:2px
+
+    class Admin,Manager,Staff,Driver actorStyle
+    class UC_Login,UC_Logout,UC_ChangePassword authStyle
+    class UC_CreateUser,UC_UpdateUser,UC_DeleteUser,UC_ViewUsers userStyle
+    class UC_CreateCustomer,UC_UpdateCustomer,UC_DeleteCustomer,UC_ViewCustomers customerStyle
+    class UC_CreateFleet,UC_UpdateFleet,UC_DeleteFleet,UC_ViewFleets,UC_FleetMaintenance fleetStyle
+    class UC_CreateLocation,UC_UpdateLocation,UC_DeleteLocation,UC_ViewLocations locationStyle
+    class UC_CreateShipment,UC_UpdateShipment,UC_AssignFleet,UC_TrackShipment,UC_ViewShipments shipmentStyle
+    class UC_ViewDashboard,UC_GenerateReports,UC_ViewActivityLogs,UC_ExportData reportStyle
+            </pre>
+    </div>
+
+    <h2>4. Sequence Diagram - Create Shipment Flow</h2>
+    <p>Diagram ini menunjukkan alur proses pembuatan shipment baru.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+sequenceDiagram
+    actor User as Staff/Manager
+    participant Frontend
+    participant API as Backend API
+    participant Auth as Auth Middleware
+    participant Controller as Shipment Controller
+    participant DB as MongoDB
+    participant Logger as Activity Log
+
+    User->>Frontend: Fill shipment form
+    Frontend->>Frontend: Validate input
+    Frontend->>API: POST /api/shipments
+    API->>Auth: Verify JWT token
+    Auth->>Auth: Check user role
+
+    alt Token invalid
+        Auth-->>Frontend: 401 Unauthorized
+        Frontend-->>User: Show error message
+    else Token valid
+        Auth->>Controller: Forward request
+        Controller->>DB: Check customer exists
+
+        alt Customer not found
+            DB-->>Controller: Customer not found
+            Controller-->>Frontend: 404 Not Found
+            Frontend-->>User: Show error
+        else Customer exists
+            DB-->>Controller: Customer data
+            Controller->>DB: Check fleet availability
+
+            alt Fleet available
+                DB-->>Controller: Fleet data
+                Controller->>DB: Create shipment
+                DB-->>Controller: Shipment created
+                Controller->>Logger: Log activity
+                Logger->>DB: Save activity log
+                Controller-->>Frontend: 201 Created + shipment data
+                Frontend-->>User: Show success message
+            else Fleet not available
+                DB-->>Controller: No fleet available
+                Controller->>DB: Create shipment (pending)
+                DB-->>Controller: Shipment created
+                Controller->>Logger: Log activity
+                Controller-->>Frontend: 201 Created (pending fleet)
+                Frontend-->>User: Show warning (no fleet)
+            end
+        end
+    end
+            </pre>
+    </div>
+
+    <h2>5. Sequence Diagram - Update Shipment Status Flow</h2>
+    <p>Diagram ini menunjukkan alur proses update status shipment.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+sequenceDiagram
+    actor User as Driver/Staff
+    participant Frontend
+    participant API as Backend API
+    participant Auth as Auth Middleware
+    participant Controller as Shipment Controller
+    participant DB as MongoDB
+    participant Logger as Activity Log
+
+    User->>Frontend: Select shipment
+    User->>Frontend: Update status
+    Frontend->>API: PUT /api/shipments/:id
+    API->>Auth: Verify JWT token
+    Auth->>Auth: Check permissions
+
+    alt Unauthorized
+        Auth-->>Frontend: 403 Forbidden
+        Frontend-->>User: Access denied
+    else Authorized
+        Auth->>Controller: Forward request
+        Controller->>DB: Find shipment by ID
+
+        alt Shipment not found
+            DB-->>Controller: Not found
+            Controller-->>Frontend: 404 Not Found
+            Frontend-->>User: Shipment not found
+        else Shipment found
+            DB-->>Controller: Shipment data
+            Controller->>Controller: Validate status transition
+
+            alt Invalid transition
+                Controller-->>Frontend: 400 Bad Request
+                Frontend-->>User: Invalid status change
+            else Valid transition
+                Controller->>DB: Update shipment status
+
+                alt Status = "Delivered"
+                    Controller->>DB: Set actualDelivery date
+                    Controller->>DB: Update fleet status to "Available"
+                end
+
+                DB-->>Controller: Updated shipment
+                Controller->>Logger: Log status change
+                Logger->>DB: Save activity log
+                Controller-->>Frontend: 200 OK + updated data
+                Frontend-->>User: Status updated successfully
+            end
+        end
+    end
+            </pre>
+    </div>
+
+    <h2>6. State Diagram - Shipment Status</h2>
+    <p>Diagram ini menunjukkan state transitions untuk status shipment.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Pending: Create shipment
+
+    Pending --> InTransit: Assign fleet & dispatch
+    Pending --> Cancelled: Cancel by user
+
+    InTransit --> Delivered: Complete delivery
+    InTransit --> Cancelled: Cancel shipment
+
+    Delivered --> [*]
+    Cancelled --> [*]
+
+    note right of Pending
+        Waiting for fleet assignment
+    end note
+
+    note right of InTransit
+        Fleet assigned and on route
+    end note
+
+    note right of Delivered
+        Successfully delivered
+        actualDelivery date set
+    end note
+
+    note right of Cancelled
+        Shipment cancelled
+        Fleet released
+    end note
+            </pre>
+    </div>
+
+    <h2>7. Component Diagram - System Architecture</h2>
+    <p>Diagram ini menunjukkan arsitektur komponen sistem.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+graph TB
+    subgraph "Frontend - React"
+        UI[User Interface]
+        Components[React Components]
+        State[State Management]
+        API_Client[API Client/Axios]
+    end
+
+    subgraph "Backend - Node.js/Express"
+        Routes[Routes Layer]
+        Middleware[Middleware Layer]
+        Controllers[Controllers Layer]
+        Models[Models Layer]
+        Utils[Utilities]
+    end
+
+    subgraph "Database"
+        MongoDB[(MongoDB)]
+    end
+
+    subgraph "Authentication"
+        JWT[JWT Service]
+        BCrypt[Password Hashing]
+    end
+
+    UI --> Components
+    Components --> State
+    State --> API_Client
+
+    API_Client -->|HTTP/REST| Routes
+    Routes --> Middleware
+    Middleware --> JWT
+    Middleware --> Controllers
+    Controllers --> Models
+    Controllers --> Utils
+    Models --> MongoDB
+
+    Controllers --> BCrypt
+    Controllers --> JWT
+            </pre>
+    </div>
+
+    <h2>8. Deployment Diagram</h2>
+    <p>Diagram ini menunjukkan deployment architecture sistem.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+graph TB
+    subgraph "Client Side"
+        Browser[Web Browser]
+    end
+
+    subgraph "Frontend Server"
+        ReactApp[React Application<br/>Port: 3000]
+    end
+
+    subgraph "Backend Server"
+        ExpressAPI[Express API<br/>Port: 5000]
+    end
+
+    subgraph "Database Server"
+        MongoDBServer[(MongoDB<br/>Port: 27017)]
+    end
+
+    Browser -->|HTTP/HTTPS| ReactApp
+    ReactApp -->|REST API Calls| ExpressAPI
+    ExpressAPI -->|Mongoose ODM| MongoDBServer
+            </pre>
+    </div>
+
+    <h2>9. Activity Diagram - Fleet Assignment Process</h2>
+    <p>Diagram ini menunjukkan proses assignment fleet ke shipment.</p>
+    <div class="diagram-container">
+      <pre class="mermaid">
+flowchart TD
+    Start([Start]) --> CheckShipment{Shipment<br/>exists?}
+
+    CheckShipment -->|No| Error1[Return 404 Error]
+    CheckShipment -->|Yes| CheckStatus{Status is<br/>Pending?}
+
+    CheckStatus -->|No| Error2[Return 400 Error:<br/>Cannot assign fleet]
+    CheckStatus -->|Yes| GetFleetList[Get available fleets]
+
+    GetFleetList --> CheckCapacity{Fleet capacity<br/>>= shipment weight?}
+
+    CheckCapacity -->|No| NoFleet[No suitable fleet]
+    CheckCapacity -->|Yes| AssignFleet[Assign fleet to shipment]
+
+    AssignFleet --> UpdateFleetStatus[Update fleet status<br/>to 'On Route']
+    UpdateFleetStatus --> UpdateShipmentStatus[Update shipment status<br/>to 'In Transit']
+    UpdateShipmentStatus --> LogActivity[Log activity]
+    LogActivity --> Success[Return success response]
+
+    NoFleet --> End1([End - No fleet available])
+    Error1 --> End2([End - Error])
+    Error2 --> End2
+    Success --> End3([End - Success])
+            </pre>
+    </div>
+
+    <div class="legend">
+      <h3>📖 Legend</h3>
+      <ul>
+        <li><strong>PK</strong>: Primary Key</li>
+        <li><strong>FK</strong>: Foreign Key</li>
+        <li><strong>UK</strong>: Unique Key</li>
+        <li><strong>||--o{</strong>: One to Many relationship</li>
+        <li><strong>}o--||</strong>: Many to One relationship</li>
+        <li><strong>--></strong>: Association/Dependency</li>
+        <li><strong>-.includes.-></strong>: Include relationship</li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <strong>💡 Tips:</strong>
+      <ul style="margin-left: 20px; margin-top: 10px;">
+        <li>Untuk hasil terbaik, gunakan Chrome atau Edge untuk print ke PDF</li>
+        <li>Pastikan "Background graphics" dicentang di print settings</li>
+        <li>Pilih orientasi "Landscape" untuk diagram yang lebar</li>
+        <li>Atur margin sesuai kebutuhan</li>
+      </ul>
+    </div>
+  </div>
+</body>
+
+</html>
