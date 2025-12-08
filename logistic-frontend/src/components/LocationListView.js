@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Plus, Trash2, Save, Search } from 'lucide-react'; // Tambah icon Search
+import { MapPin, Plus, Trash2, Save, Search, Edit2 } from 'lucide-react'; // Tambah icon Edit2
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet'; // Tambah useMap
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -9,10 +9,10 @@ import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
@@ -52,8 +52,9 @@ const LocationMarker = ({ position, setPosition, setFormData }) => {
   );
 };
 
-const LocationListView = ({ locations, onCreate, onDelete }) => {
+const LocationListView = ({ locations, onCreate, onUpdate, onDelete }) => {
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
     cityName: '',
@@ -72,16 +73,36 @@ const LocationListView = ({ locations, onCreate, onDelete }) => {
     setMarkerPosition(null);
     setSearchQuery('');
     setMapCenter(null);
+    setEditingId(null);
     setShowForm(false);
+  };
+
+  const handleEditClick = (location) => {
+    setFormData({
+      cityName: location.cityName,
+      latitude: location.latitude,
+      longitude: location.longitude
+    });
+    const position = { lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) };
+    setMarkerPosition(position);
+    setMapCenter(position);
+    setEditingId(location.id || location._id);
+    setShowForm(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onCreate({
-        ...formData,
-        latitude: parseFloat(formData.latitude),
-        longitude: parseFloat(formData.longitude)
-    });
+    const payload = {
+      ...formData,
+      latitude: parseFloat(formData.latitude),
+      longitude: parseFloat(formData.longitude)
+    };
+
+    if (editingId) {
+      onUpdate(editingId, payload);
+    } else {
+      onCreate(payload);
+    }
     resetForm();
   };
 
@@ -132,111 +153,111 @@ const LocationListView = ({ locations, onCreate, onDelete }) => {
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium text-sm"
         >
           <Plus size={16} />
-          {showForm ? 'Batal' : 'Tambah Lokasi'}
+          {showForm && !editingId ? 'Batal' : editingId ? 'Batal Edit' : 'Tambah Lokasi'}
         </button>
       </div>
 
       {showForm && (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 animate-fade-in">
-           <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-slate-800">Pilih Lokasi Baru</h3>
-              <button onClick={resetForm} className="text-slate-400 hover:text-slate-600 text-sm">Batal</button>
-           </div>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold text-slate-800">{editingId ? 'Edit Lokasi' : 'Pilih Lokasi Baru'}</h3>
+            <button onClick={resetForm} className="text-slate-400 hover:text-slate-600 text-sm">Batal</button>
+          </div>
 
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-             {/* BAGIAN KIRI: PETA INPUT */}
-             <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* BAGIAN KIRI: PETA INPUT */}
+            <div className="flex flex-col gap-2">
 
-               {/* Search Bar Peta */}
-               <div className="flex gap-2">
-                 <input
-                    type="text"
-                    placeholder="Cari lokasi (misal: Monas, Bandung)..."
-                    className="flex-1 border p-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSearchLocation(e)}
-                 />
-                 <button
-                    onClick={handleSearchLocation}
-                    disabled={isSearching}
-                    className="bg-slate-800 text-white px-3 py-2 rounded hover:bg-slate-700 transition-colors flex items-center justify-center"
-                 >
-                    {isSearching ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Search size={16} />}
-                 </button>
-               </div>
+              {/* Search Bar Peta */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Cari lokasi (misal: Monas, Bandung)..."
+                  className="flex-1 border p-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearchLocation(e)}
+                />
+                <button
+                  onClick={handleSearchLocation}
+                  disabled={isSearching}
+                  className="bg-slate-800 text-white px-3 py-2 rounded hover:bg-slate-700 transition-colors flex items-center justify-center"
+                >
+                  {isSearching ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Search size={16} />}
+                </button>
+              </div>
 
-               <div className="h-64 lg:h-80 rounded-lg overflow-hidden border border-slate-300 relative z-0">
-                 <MapContainer center={[-6.2088, 106.8456]} zoom={10} style={{ height: '100%', width: '100%' }}>
-                   <TileLayer
-                     attribution='&copy; OpenStreetMap contributors'
-                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                   />
-                   <LocationMarker
-                      position={markerPosition}
-                      setPosition={setMarkerPosition}
-                      setFormData={setFormData}
-                   />
-                   {/* Komponen ini mengontrol pergerakan peta saat hasil search didapat */}
-                   <MapController coords={mapCenter} />
-                 </MapContainer>
-
-                 <div className="absolute bottom-2 left-2 bg-white/90 px-2 py-1 text-xs rounded shadow z-[1000] text-slate-600">
-                    Klik peta atau gunakan pencarian
-                 </div>
-               </div>
-             </div>
-
-             {/* BAGIAN KANAN: FORM INPUT */}
-             <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-slate-500">Nama Kota / Tempat</label>
-                  <input
-                      required
-                      placeholder="Contoh: Gudang Cikarang"
-                      className="w-full border p-2 rounded"
-                      value={formData.cityName}
-                      onChange={e => setFormData({...formData, cityName: e.target.value})}
+              <div className="h-64 lg:h-80 rounded-lg overflow-hidden border border-slate-300 relative z-0">
+                <MapContainer center={[-6.2088, 106.8456]} zoom={10} style={{ height: '100%', width: '100%' }}>
+                  <TileLayer
+                    attribution='&copy; OpenStreetMap contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
-                  <p className="text-[10px] text-slate-400">Nama ini akan muncul di dropdown pengiriman.</p>
+                  <LocationMarker
+                    position={markerPosition}
+                    setPosition={setMarkerPosition}
+                    setFormData={setFormData}
+                  />
+                  {/* Komponen ini mengontrol pergerakan peta saat hasil search didapat */}
+                  <MapController coords={mapCenter} />
+                </MapContainer>
+
+                <div className="absolute bottom-2 left-2 bg-white/90 px-2 py-1 text-xs rounded shadow z-[1000] text-slate-600">
+                  Klik peta atau gunakan pencarian
+                </div>
+              </div>
+            </div>
+
+            {/* BAGIAN KANAN: FORM INPUT */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-slate-500">Nama Kota / Tempat</label>
+                <input
+                  required
+                  placeholder="Contoh: Gudang Cikarang"
+                  className="w-full border p-2 rounded"
+                  value={formData.cityName}
+                  onChange={e => setFormData({ ...formData, cityName: e.target.value })}
+                />
+                <p className="text-[10px] text-slate-400">Nama ini akan muncul di dropdown pengiriman.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">Latitude</label>
+                  <input
+                    required
+                    type="number"
+                    step="any"
+                    readOnly
+                    placeholder="-"
+                    className="w-full border p-2 rounded bg-slate-100 text-slate-600 cursor-not-allowed"
+                    value={formData.latitude}
+                  />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-slate-500">Latitude</label>
-                    <input
-                        required
-                        type="number"
-                        step="any"
-                        readOnly
-                        placeholder="-"
-                        className="w-full border p-2 rounded bg-slate-100 text-slate-600 cursor-not-allowed"
-                        value={formData.latitude}
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-slate-500">Longitude</label>
-                    <input
-                        required
-                        type="number"
-                        step="any"
-                        readOnly
-                        placeholder="-"
-                        className="w-full border p-2 rounded bg-slate-100 text-slate-600 cursor-not-allowed"
-                        value={formData.longitude}
-                    />
-                  </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">Longitude</label>
+                  <input
+                    required
+                    type="number"
+                    step="any"
+                    readOnly
+                    placeholder="-"
+                    className="w-full border p-2 rounded bg-slate-100 text-slate-600 cursor-not-allowed"
+                    value={formData.longitude}
+                  />
                 </div>
+              </div>
 
-                <div className="pt-4">
-                  <button type="submit" className="w-full bg-emerald-600 text-white p-2 rounded hover:bg-emerald-700 flex items-center justify-center gap-2 shadow-sm">
-                    <Save size={16} />
-                    Simpan Lokasi
-                  </button>
-                </div>
-             </form>
-           </div>
+              <div className="pt-4">
+                <button type="submit" className="w-full bg-emerald-600 text-white p-2 rounded hover:bg-emerald-700 flex items-center justify-center gap-2 shadow-sm">
+                  <Save size={16} />
+                  {editingId ? 'Perbarui Lokasi' : 'Simpan Lokasi'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
@@ -270,13 +291,22 @@ const LocationListView = ({ locations, onCreate, onDelete }) => {
                     {loc.longitude}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => handleEditClick(loc)}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit Lokasi"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button
                         onClick={() => onDelete(loc.id)}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Hapus Lokasi"
                       >
                         <Trash2 size={16} />
-                    </button>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -126,7 +126,7 @@ const UserListView = ({ users, onCreate, onUpdate, onDelete }) => {
             </thead>
             <tbody className="divide-y divide-slate-200">
               {users.map((userItem) => (
-                <tr key={userItem.id} className="hover:bg-slate-50 transition-colors">
+                <tr key={userItem._id || userItem.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 font-medium text-slate-900">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
@@ -160,7 +160,7 @@ const UserListView = ({ users, onCreate, onUpdate, onDelete }) => {
                         <Edit2 size={16} />
                       </button>
                       <button
-                        onClick={() => onDelete(userItem.id)}
+                        onClick={() => onDelete(userItem._id || userItem.id)}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Hapus"
                       >

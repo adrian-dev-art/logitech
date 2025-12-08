@@ -332,8 +332,11 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
   };
   const handleDeleteUser = (id) => {
     confirmDelete("Hapus pengguna sistem ini?", async () => {
-      await fetch(`${API_BASE_URL}/users/${id}`, { method: 'DELETE' });
-      setAppUsers(appUsers.filter(u => u.id !== id));
+      await fetch(`${API_BASE_URL}/users/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      setAppUsers(appUsers.filter(u => (u._id || u.id) !== id));
       toast.success('Pengguna berhasil dihapus');
     });
   };
@@ -356,6 +359,26 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
 
     if (await apiCall(`${API_BASE_URL}/locations`, 'POST', payload)) {
       toast.success('Lokasi berhasil ditambahkan!');
+      fetchLocations();
+    }
+  };
+
+  const handleUpdateLocation = async (id, data) => {
+    const payload = {
+      ...data,
+      name: data.cityName,
+      type: 'Warehouse',
+      address: `${data.cityName}, Indonesia`,
+      coordinates: { lat: data.latitude, lng: data.longitude },
+      latitude: data.latitude,
+      longitude: data.longitude,
+      capacity: 10000,
+      currentOccupancy: 0,
+      manager: 'System Admin'
+    };
+
+    if (await apiCall(`${API_BASE_URL}/locations/${id}`, 'PUT', payload)) {
+      toast.success('Lokasi berhasil diperbarui!');
       fetchLocations();
     }
   };
@@ -514,7 +537,7 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
 
             <Route path="/locations" element={
               hasAccess(['ADMIN', 'MANAGER'])
-                ? <LocationListView locations={locations} onCreate={handleCreateLocation} onDelete={handleDeleteLocation} />
+                ? <LocationListView locations={locations} onCreate={handleCreateLocation} onUpdate={handleUpdateLocation} onDelete={handleDeleteLocation} />
                 : <Navigate to="/dashboard" />
             } />
 
