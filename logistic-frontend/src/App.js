@@ -68,6 +68,7 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
   const [customers, setCustomers] = useState([]);
   const [appUsers, setAppUsers] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [drivers, setDrivers] = useState([]);
   const [error, setError] = useState(null);
 
   const location = useLocation();
@@ -128,6 +129,15 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
     } catch (e) { }
   };
 
+  const fetchDrivers = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/drivers/available`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) setDrivers(await res.json());
+    } catch (e) { }
+  };
+
   // --- 2. INITIAL LOAD ---
   useEffect(() => {
     fetchShipments();
@@ -136,7 +146,12 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
 
     // Load data sensitif hanya jika role mengizinkan
     if (hasAccess(['ADMIN'])) fetchAppUsers();
-    if (hasAccess(['ADMIN', 'MANAGER'])) fetchLocations();
+    if (hasAccess(['ADMIN', 'MANAGER'])) {
+      fetchDrivers(); // Fetch available drivers for fleet assignment
+    }
+    if (hasAccess(['ADMIN', 'MANAGER', 'DRIVER'])) {
+      fetchLocations(); // Drivers need locations for current location dropdown
+    }
   }, []);
 
   // --- HELPER RBAC & API ---
@@ -255,19 +270,42 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
     }
   };
 
+  const handleConfirmDelivery = async (id, notes = '') => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/shipments/${id}/confirm-delivery`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ notes })
+      });
+
+      if (response.ok) {
+        toast.success('Pengiriman berhasil dikonfirmasi!');
+        fetchShipments();
+        fetchVehicles(); // Refresh vehicles as status changes
+      } else {
+        const error = await response.json();
+        toast.error(error.message || 'Gagal konfirmasi pengiriman');
+      }
+    } catch (e) {
+      toast.error('Gagal konfirmasi pengiriman: Cek koneksi server');
+    }
+  };
+
   // 2. ARMADA (Fleet)
   const handleCreateVehicle = async (data) => {
     const payload = {
       ...data,
       id: `FLT-${Math.floor(100 + Math.random() * 900)}`, // Auto-generate ID
       capacity: data.type === 'Truck' ? 5000 : 1000, // Default capacity
-      driver: data.driverName, // Map driverName to driver
+      driver: data.driverName || data.driver, // Use driverName or driver field
+      driverId: data.driverId, // Pass driverId if selected from dropdown
       fuelType: 'Diesel', // Default
       year: 2023 // Default
     };
     if (await apiCall(`${API_BASE_URL}/fleet`, 'POST', payload)) {
       toast.success('Armada berhasil ditambahkan!');
       fetchVehicles();
+      fetchDrivers(); // Refresh drivers availability
     }
   };
 
@@ -275,13 +313,15 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
     const payload = {
       ...data,
       capacity: data.type === 'Truck' ? 5000 : 1000,
-      driver: data.driverName,
+      driver: data.driverName || data.driver,
+      driverId: data.driverId, // Pass driverId if changed
       fuelType: 'Diesel',
       year: 2023
     };
     if (await apiCall(`${API_BASE_URL}/fleet/${id}`, 'PUT', payload)) {
       toast.success('Data armada diperbarui!');
       fetchVehicles();
+      fetchDrivers(); // Refresh drivers availability
     }
   };
   const handleDeleteVehicle = (id) => {
@@ -501,8 +541,9 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
             />} />
 
             <Route path="/shipments" element={
-              hasAccess(['ADMIN', 'MANAGER', 'STAFF'])
+              hasAccess(['ADMIN', 'MANAGER', 'STAFF', 'DRIVER'])
                 ? <ShipmentListView
+                  user={user}
                   shipments={filteredShipments}
                   customers={customers}
                   locations={locations}
@@ -511,6 +552,7 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
                   onStatusChange={handleStatusChange}
                   onCreate={handleCreateShipment}
                   onUpdate={handleUpdateShipment}
+                  onConfirmDelivery={handleConfirmDelivery}
                   statusFilter={statusFilter}
                   onStatusFilterChange={setStatusFilter}
                 />
@@ -519,7 +561,7 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
 
             <Route path="/fleet" element={
               hasAccess(['ADMIN', 'MANAGER', 'DRIVER'])
-                ? <FleetGridView vehicles={vehicles} onCreate={handleCreateVehicle} onUpdate={handleUpdateVehicle} onDelete={handleDeleteVehicle} />
+                ? <FleetGridView user={user} vehicles={vehicles} drivers={drivers} locations={locations} onCreate={handleCreateVehicle} onUpdate={handleUpdateVehicle} onDelete={handleDeleteVehicle} />
                 : <Navigate to="/dashboard" />
             } />
 

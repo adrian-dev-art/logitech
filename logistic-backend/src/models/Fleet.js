@@ -24,6 +24,11 @@ const fleetSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  driverId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
   status: {
     type: String,
     enum: ['Available', 'On Route', 'Maintenance', 'Inactive'],

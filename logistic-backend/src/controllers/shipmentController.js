@@ -170,3 +170,66 @@ exports.deleteShipment = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Confirm delivery (for drivers)
+// @route   POST /api/shipments/:id/confirm-delivery
+// @access  Private (DRIVER)
+exports.confirmDelivery = async (req, res, next) => {
+  try {
+    const shipment = await Shipment.findOne({ id: req.params.id });
+
+    if (!shipment) {
+      return res.status(404).json({ message: 'Shipment not found' });
+    }
+
+    // Verify shipment is assigned to driver's fleet
+    if (!shipment.fleet || !shipment.fleet.id) {
+      return res.status(400).json({ message: 'Shipment has no assigned fleet' });
+    }
+
+    // Get driver's fleet to verify ownership
+    const driverFleet = await Fleet.findOne({
+      id: shipment.fleet.id,
+      driverId: req.user._id
+    });
+
+    if (!driverFleet) {
+      return res.status(403).json({
+        message: 'You are not authorized to confirm this delivery'
+      });
+    }
+
+    // Update delivery confirmation
+    shipment.deliveryConfirmation = {
+      confirmed: true,
+      confirmedBy: req.user._id,
+      confirmedAt: new Date(),
+      notes: req.body.notes || ''
+    };
+
+    // Update status to Delivered
+    shipment.status = 'Delivered';
+    shipment.actualDelivery = new Date();
+
+    await shipment.save();
+
+    // Set fleet back to Available
+    await Fleet.findOneAndUpdate(
+      { id: shipment.fleet.id },
+      { status: 'Available' }
+    );
+
+    // Log activity
+    await logAction(
+      req.user.id,
+      'CONFIRM_DELIVERY',
+      `Confirmed delivery for shipment ${shipment.id}`,
+      req.ip
+    );
+
+    res.json(shipment);
+  } catch (error) {
+    next(error);
+  }
+};
+

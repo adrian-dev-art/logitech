@@ -48,6 +48,25 @@ const shipmentSchema = new mongoose.Schema({
   notes: {
     type: String,
     default: ''
+  },
+  deliveryConfirmation: {
+    confirmed: {
+      type: Boolean,
+      default: false
+    },
+    confirmedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
+    },
+    confirmedAt: {
+      type: Date,
+      default: null
+    },
+    notes: {
+      type: String,
+      default: ''
+    }
   }
 }, {
   timestamps: true

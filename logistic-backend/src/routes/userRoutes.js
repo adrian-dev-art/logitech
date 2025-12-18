@@ -5,12 +5,18 @@ const {
   getUser,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  getAvailableDrivers
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/auth');
 
-// All routes require authentication and ADMIN role
+// All routes require authentication
 router.use(protect);
+
+// Available drivers route (ADMIN and MANAGER can access)
+router.get('/drivers/available', authorize('ADMIN', 'MANAGER'), getAvailableDrivers);
+
+// Other routes require ADMIN role only
 router.use(authorize('ADMIN'));
 
 router.route('/')

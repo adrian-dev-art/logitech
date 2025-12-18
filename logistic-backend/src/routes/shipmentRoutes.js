@@ -6,7 +6,8 @@ const {
   createShipment,
   updateShipmentStatus,
   updateShipment,
-  deleteShipment
+  deleteShipment,
+  confirmDelivery
 } = require('../controllers/shipmentController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -23,5 +24,7 @@ router.route('/:id')
   .delete(authorize('ADMIN', 'MANAGER'), deleteShipment);
 
 router.put('/:id/status', updateShipmentStatus);
+
+router.post('/:id/confirm-delivery', authorize('DRIVER'), confirmDelivery);
 
 module.exports = router;

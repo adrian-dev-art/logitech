@@ -18,7 +18,7 @@ router.route('/')
 
 router.route('/:id')
   .get(getVehicle)
-  .put(authorize('ADMIN', 'MANAGER'), updateVehicle)
+  .put(authorize('ADMIN', 'MANAGER', 'DRIVER'), updateVehicle)
   .delete(authorize('ADMIN', 'MANAGER'), deleteVehicle);
 
 module.exports = router;

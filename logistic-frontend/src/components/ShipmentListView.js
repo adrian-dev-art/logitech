@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Package, MapPin, Clock, Trash2, Truck, Printer, FileSpreadsheet, Download, Edit2 } from 'lucide-react'; // Tambah Icon
 
-const ShipmentListView = ({ shipments, customers, locations, vehicles, onDelete, onStatusChange, onCreate, onUpdate, statusFilter, onStatusFilterChange }) => {
+const ShipmentListView = ({ user, shipments, customers, locations, vehicles, onDelete, onStatusChange, onCreate, onUpdate, onConfirmDelivery, statusFilter, onStatusFilterChange }) => {
   const [newShipment, setNewShipment] = useState({
     customer: '',
     fleetId: '',
@@ -164,15 +164,28 @@ const ShipmentListView = ({ shipments, customers, locations, vehicles, onDelete,
         <h2 className="text-xl font-bold text-slate-900">Manajemen Pengiriman</h2>
 
         <div className="flex items-center gap-3">
-          {/* Tombol Export Excel */}
-          <button
-            onClick={handleExport}
-            className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 font-medium text-sm"
-            title="Unduh Laporan CSV"
-          >
-            <FileSpreadsheet size={16} />
-            Export Laporan
-          </button>
+          {/* Hanya Admin/Manager/Staff bisa export dan tambah pengiriman */}
+          {user.role !== 'DRIVER' && (
+            <>
+              {/* Tombol Export Excel */}
+              <button
+                onClick={handleExport}
+                className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 font-medium text-sm"
+                title="Unduh Laporan CSV"
+              >
+                <FileSpreadsheet size={16} />
+                Export Laporan
+              </button>
+
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium text-sm"
+              >
+                <Package size={16} />
+                {showForm ? 'Batal' : 'Tambah Pengiriman'}
+              </button>
+            </>
+          )}
 
           <select
             className="border p-2 rounded w-44 bg-white text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
@@ -186,14 +199,6 @@ const ShipmentListView = ({ shipments, customers, locations, vehicles, onDelete,
             <option value="Delivered">Terkirim</option>
             <option value="Cancelled">Dibatalkan</option>
           </select>
-
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium text-sm"
-          >
-            <Package size={16} />
-            {showForm ? 'Batal' : 'Tambah Pengiriman'}
-          </button>
         </div>
       </div>
 
@@ -308,34 +313,68 @@ const ShipmentListView = ({ shipments, customers, locations, vehicles, onDelete,
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <select
-                      value={shipment.status}
-                      onChange={(e) => onStatusChange(shipment.id, e.target.value)}
-                      className={`px-2 py-1 rounded-full text-xs font-medium border-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${getStatusColor(shipment.status)}`}
-                    >
-                      <option value="Pending">Menunggu</option>
-                      <option value="In Transit">Dalam Perjalanan</option>
-                      <option value="Delivered">Terkirim</option>
-                      <option value="Cancelled">Dibatalkan</option>
-                    </select>
+                    {/* Driver hanya bisa konfirmasi, tidak bisa ubah status manual */}
+                    {user.role === 'DRIVER' ? (
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(shipment.status)}`}>
+                        {shipment.status === 'Pending' ? 'Menunggu' :
+                          shipment.status === 'In Transit' ? 'Dalam Perjalanan' :
+                            shipment.status === 'Delivered' ? 'Terkirim' : 'Dibatalkan'}
+                      </span>
+                    ) : (
+                      <select
+                        value={shipment.status}
+                        onChange={(e) => onStatusChange(shipment.id, e.target.value)}
+                        className={`px-2 py-1 rounded-full text-xs font-medium border-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${getStatusColor(shipment.status)}`}
+                      >
+                        <option value="Pending">Menunggu</option>
+                        <option value="In Transit">Dalam Perjalanan</option>
+                        <option value="Delivered">Terkirim</option>
+                        <option value="Cancelled">Dibatalkan</option>
+                      </select>
+                    )}
+
+                    {/* Tampilkan badge konfirmasi jika sudah dikonfirmasi */}
+                    {shipment.deliveryConfirmation?.confirmed && (
+                      <div className="mt-1">
+                        <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                          ✓ Dikonfirmasi
+                        </span>
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleEdit(shipment)}
-                        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                        title="Edit Pengiriman"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => handlePrint(shipment)}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Cetak Surat Jalan"
-                      >
-                        <Printer size={16} />
-                      </button>
-                      <button onClick={() => onDelete(shipment.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                      {/* Tombol Konfirmasi Pengiriman untuk Driver */}
+                      {user.role === 'DRIVER' && shipment.status === 'In Transit' && shipment.fleet && !shipment.deliveryConfirmation?.confirmed && (
+                        <button
+                          onClick={() => onConfirmDelivery(shipment.id)}
+                          className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors text-xs font-medium border border-emerald-200"
+                          title="Konfirmasi Pengiriman Sampai"
+                        >
+                          ✓ Konfirmasi
+                        </button>
+                      )}
+
+                      {/* Tombol Edit/Print/Delete untuk Non-Driver */}
+                      {user.role !== 'DRIVER' && (
+                        <>
+                          <button
+                            onClick={() => handleEdit(shipment)}
+                            className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            title="Edit Pengiriman"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handlePrint(shipment)}
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Cetak Surat Jalan"
+                          >
+                            <Printer size={16} />
+                          </button>
+                          <button onClick={() => onDelete(shipment.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

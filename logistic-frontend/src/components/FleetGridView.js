@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { CheckCircle, Navigation, Wrench, Truck, Battery, Plus, Edit2, Trash2, Save } from 'lucide-react';
 
-const FleetGridView = ({ vehicles, onCreate, onUpdate, onDelete }) => {
+const FleetGridView = ({ user, vehicles, drivers = [], locations = [], onCreate, onUpdate, onDelete }) => {
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const initialFormState = {
     id: '',
     plateNumber: '',
+    driverId: '',
     driverName: '',
     type: 'Truck',
     status: 'Available',
@@ -24,14 +25,42 @@ const FleetGridView = ({ vehicles, onCreate, onUpdate, onDelete }) => {
   };
 
   const handleEditClick = (vehicle) => {
-    setFormData(vehicle);
+    setFormData({
+      ...vehicle,
+      driverId: vehicle.driverId || '',
+      driverName: vehicle.driver || ''
+    });
     setIsEditing(true);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleDriverChange = (e) => {
+    const selectedDriverId = e.target.value;
+
+    if (selectedDriverId) {
+      const selectedDriver = drivers.find(d => d._id === selectedDriverId);
+      if (selectedDriver) {
+        setFormData({
+          ...formData,
+          driverId: selectedDriverId,
+          driverName: selectedDriver.fullName,
+          driver: selectedDriver.fullName
+        });
+      }
+    } else {
+      setFormData({
+        ...formData,
+        driverId: '',
+        driverName: '',
+        driver: ''
+      });
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('Locations available:', locations); // Debug log
     if (isEditing) {
       onUpdate(formData.id, formData);
     } else {
@@ -54,13 +83,16 @@ const FleetGridView = ({ vehicles, onCreate, onUpdate, onDelete }) => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-900">Manajemen Armada</h2>
-        <button
-          onClick={() => { resetForm(); setShowForm(!showForm); }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium text-sm"
-        >
-          <Plus size={16} />
-          {showForm && !isEditing ? 'Batal' : 'Tambah Armada'}
-        </button>
+        {/* Hanya tampilkan tombol tambah untuk ADMIN/MANAGER */}
+        {user.role !== 'DRIVER' && (
+          <button
+            onClick={() => { resetForm(); setShowForm(!showForm); }}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium text-sm"
+          >
+            <Plus size={16} />
+            {showForm && !isEditing ? 'Batal' : 'Tambah Armada'}
+          </button>
+        )}
       </div>
 
       {showForm && (
@@ -77,18 +109,72 @@ const FleetGridView = ({ vehicles, onCreate, onUpdate, onDelete }) => {
               </div>
             )}
             <input required placeholder="Plat Nomor" className="border p-2 rounded" value={formData.plateNumber} onChange={e => setFormData({ ...formData, plateNumber: e.target.value })} />
-            <input required placeholder="Nama Pengemudi" className="border p-2 rounded" value={formData.driverName} onChange={e => setFormData({ ...formData, driverName: e.target.value })} />
+
+            {/* Dropdown Driver - Hanya untuk ADMIN/MANAGER */}
+            {user.role !== 'DRIVER' ? (
+              <div className="flex flex-col">
+                <label className="text-xs text-slate-500 mb-1">Pengemudi</label>
+                <select
+                  className="border p-2 rounded bg-white"
+                  value={formData.driverId || ''}
+                  onChange={handleDriverChange}
+                >
+                  <option value="">-- Pilih Driver --</option>
+                  {drivers.map((driver) => (
+                    <option key={driver._id} value={driver._id}>
+                      {driver.fullName} {driver.hasAssignedFleet ? '(Sudah Ditugaskan)' : '(Tersedia)'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <input
+                placeholder="Nama Pengemudi"
+                className="border p-2 rounded bg-slate-100"
+                value={formData.driverName}
+                readOnly
+                disabled
+              />
+            )}
+
             <select className="border p-2 rounded" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
               <option value="Truck">Truk</option>
               <option value="Van">Mobil Box</option>
               <option value="Drone">Drone</option>
             </select>
-            <select className="border p-2 rounded" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
+            <select
+              className="border p-2 rounded"
+              value={formData.status}
+              onChange={e => setFormData({ ...formData, status: e.target.value })}
+            >
               <option value="Available">Tersedia</option>
               <option value="On Route">Dalam Perjalanan</option>
               <option value="Maintenance">Perbaikan</option>
             </select>
-            <input required placeholder="Lokasi Saat Ini" className="border p-2 rounded" value={formData.currentLocation} onChange={e => setFormData({ ...formData, currentLocation: e.target.value })} />
+
+            <div className="flex flex-col">
+              <label className="text-xs text-slate-500 mb-1">Lokasi Saat Ini</label>
+              <select
+                required
+                className="border p-2 rounded bg-white"
+                value={formData.currentLocation}
+                onChange={e => setFormData({ ...formData, currentLocation: e.target.value })}
+              >
+                <option value="">-- Pilih Lokasi --</option>
+                {locations && locations.length > 0 ? (
+                  locations.map((loc) => (
+                    <option key={loc.id} value={loc.cityName}>
+                      {loc.cityName}
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>Tidak ada lokasi tersedia</option>
+                )}
+              </select>
+              {(!locations || locations.length === 0) && (
+                <span className="text-xs text-red-500 mt-1">⚠️ Data lokasi belum dimuat</span>
+              )}
+            </div>
 
             <div className="md:col-span-3 flex gap-3">
               <div className="flex-1">
@@ -111,7 +197,10 @@ const FleetGridView = ({ vehicles, onCreate, onUpdate, onDelete }) => {
 
             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 backdrop-blur-sm p-1 rounded-lg shadow-sm">
               <button onClick={() => handleEditClick(vehicle)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md"><Edit2 size={14} /></button>
-              <button onClick={() => onDelete(vehicle.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-md"><Trash2 size={14} /></button>
+              {/* Hanya ADMIN/MANAGER bisa hapus armada */}
+              {user.role !== 'DRIVER' && (
+                <button onClick={() => onDelete(vehicle.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-md"><Trash2 size={14} /></button>
+              )}
             </div>
 
             <div className="flex items-start justify-between mb-4">

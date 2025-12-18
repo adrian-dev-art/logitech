@@ -107,3 +107,43 @@ exports.deleteUser = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Get available drivers
+// @route   GET /api/users/drivers/available
+// @access  Private (ADMIN, MANAGER)
+exports.getAvailableDrivers = async (req, res, next) => {
+  try {
+    const Fleet = require('../models/Fleet');
+
+    // Get all users with DRIVER role
+    const drivers = await User.find({ role: 'DRIVER' }).select('-password');
+
+    // For each driver, check if they have assigned fleet
+    const driversWithAvailability = await Promise.all(
+      drivers.map(async (driver) => {
+        const assignedFleet = await Fleet.findOne({ driverId: driver._id });
+
+        return {
+          _id: driver._id,
+          username: driver.username,
+          email: driver.email,
+          fullName: driver.fullName,
+          phone: driver.phone,
+          isActive: driver.isActive,
+          hasAssignedFleet: !!assignedFleet,
+          assignedFleet: assignedFleet ? {
+            id: assignedFleet.id,
+            plateNumber: assignedFleet.plateNumber,
+            type: assignedFleet.type,
+            status: assignedFleet.status
+          } : null
+        };
+      })
+    );
+
+    res.json(driversWithAvailability);
+  } catch (error) {
+    next(error);
+  }
+};
+
