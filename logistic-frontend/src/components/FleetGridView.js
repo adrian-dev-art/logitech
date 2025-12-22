@@ -216,14 +216,28 @@ const FleetGridView = ({ user, vehicles, drivers = [], locations = [], shipments
               {getStatusBadge(vehicle.status)}
             </div>
             <div className="space-y-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500">Pengemudi</span>
-                <span className="font-medium text-slate-900">{vehicle.driverName}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500">Lokasi</span>
-                <span className="font-medium text-slate-900">{vehicle.currentLocation}</span>
-              </div>
+              {/* Tampilkan ID Pengiriman jika ada */}
+              {(() => {
+                const assignedShipment = shipments.find(s => s.fleet?.id === vehicle.id);
+                return assignedShipment && (
+                  <>
+                    <div className="flex justify-between items-center text-sm bg-blue-50 px-3 py-2 rounded-lg border border-blue-100">
+                      <span className="text-blue-600 font-medium">ID Pengiriman</span>
+                      <span className="font-bold text-blue-700">{assignedShipment.id}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500">Asal</span>
+                      <span className="font-medium text-slate-900">{assignedShipment.origin}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500">Tujuan</span>
+                      <span className="font-medium text-slate-900">{assignedShipment.destination}</span>
+                    </div>
+                  </>
+                );
+              })()}
               <div className="pt-4 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-slate-500 flex items-center gap-1"><Battery className="w-3 h-3" /> BBM</span>
@@ -254,8 +268,8 @@ const FleetGridView = ({ user, vehicles, drivers = [], locations = [], shipments
                       <button
                         onClick={() => onStatusChange(assignedShipment.id, 'Delivered')}
                         className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${assignedShipment.status === 'Delivered'
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                         disabled={assignedShipment.status === 'Delivered' || assignedShipment.status === 'Cancelled'}
                       >
@@ -264,8 +278,8 @@ const FleetGridView = ({ user, vehicles, drivers = [], locations = [], shipments
                       <button
                         onClick={() => onStatusChange(assignedShipment.id, 'In Transit')}
                         className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${assignedShipment.status === 'In Transit'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                         disabled={assignedShipment.status === 'Delivered' || assignedShipment.status === 'Cancelled'}
                       >
@@ -274,8 +288,8 @@ const FleetGridView = ({ user, vehicles, drivers = [], locations = [], shipments
                       <button
                         onClick={() => onStatusChange(assignedShipment.id, 'Pending')}
                         className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${assignedShipment.status === 'Pending'
-                            ? 'bg-amber-600 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? 'bg-amber-600 text-white'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                         disabled={assignedShipment.status === 'Delivered' || assignedShipment.status === 'Cancelled'}
                       >
@@ -284,8 +298,8 @@ const FleetGridView = ({ user, vehicles, drivers = [], locations = [], shipments
                       <button
                         onClick={() => onStatusChange(assignedShipment.id, 'Cancelled')}
                         className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${assignedShipment.status === 'Cancelled'
-                            ? 'bg-red-600 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? 'bg-red-600 text-white'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                         disabled={assignedShipment.status === 'Delivered' || assignedShipment.status === 'Cancelled'}
                       >

@@ -254,7 +254,7 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
   const handleStatusChange = async (id, newStatus) => {
     try {
       const token = localStorage.getItem('logistic_token');
-      await fetch(`${API_BASE_URL}/shipments/${id}/status`, {
+      const response = await fetch(`${API_BASE_URL}/shipments/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'text/plain',
@@ -262,11 +262,18 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
         },
         body: newStatus
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error ${response.status}`);
+      }
+
       toast.success(`Status diperbarui menjadi ${newStatus}`);
       fetchShipments();
       fetchVehicles(); // Refresh armada saat status kiriman berubah
     } catch (e) {
-      toast.error("Gagal update status: Cek koneksi server.");
+      toast.error(`Gagal update status: ${e.message}`);
+      console.error('Status update error:', e);
     }
   };
 
