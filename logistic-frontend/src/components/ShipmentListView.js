@@ -355,6 +355,33 @@ const ShipmentListView = ({ user, shipments, customers, locations, vehicles, onD
                         </button>
                       )}
 
+                      {/* Tombol Status untuk Driver - Sampai Tujuan & Dibatalkan */}
+                      {user.role === 'DRIVER' && shipment.fleet && (
+                        <div className="flex gap-2">
+                          {/* Tombol Sampai Tujuan - hanya muncul jika status In Transit */}
+                          {shipment.status === 'In Transit' && (
+                            <button
+                              onClick={() => onStatusChange(shipment.id, 'Delivered')}
+                              className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-xs font-medium"
+                              title="Tandai Sampai Tujuan"
+                            >
+                              Sampai Tujuan
+                            </button>
+                          )}
+
+                          {/* Tombol Dibatalkan - hanya muncul jika belum Delivered atau Cancelled */}
+                          {(shipment.status === 'Pending' || shipment.status === 'In Transit') && (
+                            <button
+                              onClick={() => onStatusChange(shipment.id, 'Cancelled')}
+                              className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs font-medium"
+                              title="Batalkan Pengiriman"
+                            >
+                              Dibatalkan
+                            </button>
+                          )}
+                        </div>
+                      )}
+
                       {/* Tombol Edit/Print/Delete untuk Non-Driver */}
                       {user.role !== 'DRIVER' && (
                         <>
