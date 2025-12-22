@@ -23,7 +23,7 @@ router.route('/:id')
   .put(authorize('ADMIN', 'MANAGER'), updateShipment)
   .delete(authorize('ADMIN', 'MANAGER'), deleteShipment);
 
-router.put('/:id/status', updateShipmentStatus);
+router.put('/:id/status', authorize('ADMIN', 'MANAGER', 'STAFF', 'DRIVER'), updateShipmentStatus);
 
 router.post('/:id/confirm-delivery', authorize('DRIVER'), confirmDelivery);
 
