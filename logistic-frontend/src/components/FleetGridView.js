@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle, Navigation, Wrench, Truck, Battery, Plus, Edit2, Trash2, Save } from 'lucide-react';
 
-const FleetGridView = ({ user, vehicles, drivers = [], locations = [], onCreate, onUpdate, onDelete }) => {
+const FleetGridView = ({ user, vehicles, drivers = [], locations = [], shipments = [], onStatusChange, onCreate, onUpdate, onDelete }) => {
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -234,62 +234,67 @@ const FleetGridView = ({ user, vehicles, drivers = [], locations = [], onCreate,
                 </div>
               </div>
 
-              {/* Tombol Status untuk Driver - Langsung di Card */}
-              {user.role === 'DRIVER' && (
-                <div className="pt-4 border-t border-slate-100 mt-4">
-                  <p className="text-xs text-slate-500 mb-2">Ubah Status:</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => {
-                        const updatedVehicle = { ...vehicle, status: 'Available' };
-                        onUpdate(vehicle.id, updatedVehicle);
-                      }}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${vehicle.status === 'Available'
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                    >
-                      Selesai
-                    </button>
-                    <button
-                      onClick={() => {
-                        const updatedVehicle = { ...vehicle, status: 'On Route' };
-                        onUpdate(vehicle.id, updatedVehicle);
-                      }}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${vehicle.status === 'On Route'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                    >
-                      Dalam Perjalanan
-                    </button>
-                    <button
-                      onClick={() => {
-                        const updatedVehicle = { ...vehicle, status: 'Maintenance' };
-                        onUpdate(vehicle.id, updatedVehicle);
-                      }}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${vehicle.status === 'Maintenance'
-                          ? 'bg-amber-600 text-white'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                    >
-                      Perbaikan
-                    </button>
-                    <button
-                      onClick={() => {
-                        const updatedVehicle = { ...vehicle, status: 'Inactive' };
-                        onUpdate(vehicle.id, updatedVehicle);
-                      }}
-                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${vehicle.status === 'Inactive'
-                          ? 'bg-red-600 text-white'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                    >
-                      Batalkan
-                    </button>
+              {/* Tombol Status untuk Driver - Update Shipment Status */}
+              {user.role === 'DRIVER' && (() => {
+                // Find shipment assigned to this fleet
+                const assignedShipment = shipments.find(s => s.fleet?.id === vehicle.id);
+
+                if (!assignedShipment) {
+                  return (
+                    <div className="pt-4 border-t border-slate-100 mt-4">
+                      <p className="text-xs text-slate-400 italic text-center">Tidak ada pengiriman aktif</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="pt-4 border-t border-slate-100 mt-4">
+                    <p className="text-xs text-slate-500 mb-2">Ubah Status Pengiriman:</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => onStatusChange(assignedShipment.id, 'Delivered')}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${assignedShipment.status === 'Delivered'
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        disabled={assignedShipment.status === 'Delivered' || assignedShipment.status === 'Cancelled'}
+                      >
+                        Sampai Tujuan
+                      </button>
+                      <button
+                        onClick={() => onStatusChange(assignedShipment.id, 'In Transit')}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${assignedShipment.status === 'In Transit'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        disabled={assignedShipment.status === 'Delivered' || assignedShipment.status === 'Cancelled'}
+                      >
+                        Dalam Perjalanan
+                      </button>
+                      <button
+                        onClick={() => onStatusChange(assignedShipment.id, 'Pending')}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${assignedShipment.status === 'Pending'
+                            ? 'bg-amber-600 text-white'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        disabled={assignedShipment.status === 'Delivered' || assignedShipment.status === 'Cancelled'}
+                      >
+                        Menunggu
+                      </button>
+                      <button
+                        onClick={() => onStatusChange(assignedShipment.id, 'Cancelled')}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${assignedShipment.status === 'Cancelled'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        disabled={assignedShipment.status === 'Delivered' || assignedShipment.status === 'Cancelled'}
+                      >
+                        Dibatalkan
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         ))}

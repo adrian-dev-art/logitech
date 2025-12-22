@@ -561,7 +561,7 @@ function MainLayout({ user, onLogout, onUpdateSession }) {
 
             <Route path="/fleet" element={
               hasAccess(['ADMIN', 'MANAGER', 'DRIVER'])
-                ? <FleetGridView user={user} vehicles={vehicles} drivers={drivers} locations={locations} onCreate={handleCreateVehicle} onUpdate={handleUpdateVehicle} onDelete={handleDeleteVehicle} />
+                ? <FleetGridView user={user} vehicles={vehicles} drivers={drivers} locations={locations} shipments={shipments} onStatusChange={handleStatusChange} onCreate={handleCreateVehicle} onUpdate={handleUpdateVehicle} onDelete={handleDeleteVehicle} />
                 : <Navigate to="/dashboard" />
             } />
 
